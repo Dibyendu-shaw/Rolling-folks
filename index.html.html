@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Rolling Folks - Fast Food Truck</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FBF6ED 0%, #FCF9F2 100%);
+            color: #2D1B4E;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2D1B4E 0%, #4A3270 50%, #6B4E8C 100%);
+            padding: 5rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(252, 249, 242, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(245, 243, 240, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 10s ease-in-out infinite reverse;
+        }
+        
+        .truck-emoji {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            font-size: 4rem;
+            animation: bounce 3s ease-in-out infinite;
+            z-index: 2;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+        
+        .header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 4.2rem;
+            font-weight: 900;
+            color: #F5F3F0;
+            text-shadow: 4px 4px 0px rgba(45, 27, 78, 0.5), 8px 8px 0px rgba(0,0,0,0.1);
+            font-family: 'Arial Black', sans-serif;
+            letter-spacing: -2px;
+            position: relative;
+            z-index: 2;
+            animation: slideInDown 0.8s ease-out;
+        }
+        
+        .header p {
+            margin: 0.5rem 0 0 0;
+            font-size: 1.4rem;
+            color: rgba(245, 243, 240, 0.98);
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+            animation: slideInUp 0.8s ease-out 0.2s both;
+            letter-spacing: 0.5px;
+        }
+        
+        .schedule-section {
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #FCF9F2 0%, #FBF6ED 100%);
+            margin: 3rem 0;
+            position: relative;
+        }
+        
+        .schedule-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #2D1B4E;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: fadeInLeft 0.8s ease-out;
+        }
+        
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        
+        .schedule-card {
+            padding: 2.5rem;
+            background: linear-gradient(135deg, #FCF9F2 0%, #FBF6ED 100%);
+            border: 4px solid #4A3270;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 8px 20px rgba(45, 27, 78, 0.1);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .schedule-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(135deg, transparent 30%, rgba(106, 78, 140, 0.1) 50%, transparent 70%);
+            transform: rotate(45deg);
+            transition: all 0.4s;
+        }
+        
+        .schedule-card:hover {
+            background: linear-gradient(135deg, #2D1B4E 0%, #4A3270 100%);
+            color: #F5F3F0;
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(45, 27, 78, 0.3);
+        }
+        
+        .schedule-card.active {
+            background: linear-gradient(135deg, #2D1B4E 0%, #4A3270 100%);
+            color: #F5F3F0;
+            box-shadow: 0 15px 40px rgba(45, 27, 78, 0.3);
+        }
+        
+        .schedule-card .day {
+            font-size: 1.5rem;
+            font-weight: 900;
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .schedule-card .location {
+            font-size: 1.05rem;
+            margin-bottom: 0.6rem;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+        
+        .schedule-card .time {
+            font-size: 1rem;
+            opacity: 0.85;
+            font-weight: 700;
+            background: rgba(74, 50, 112, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .schedule-card:hover .time {
+            background: rgba(245, 243, 240, 0.2);
+        }
+        
+        .menu-section {
+            padding: 4rem 2rem;
+            background: linear-gradient(180deg, #FBF6ED 0%, #FCF9F2 100%);
+            position: relative;
+        }
+        
+        .menu-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #2D1B4E;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: fadeInLeft 0.8s ease-out;
+        }
+        
+        .category-buttons {
+            display: flex;
+            gap: 1.2rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+        
+        .category-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #FCF9F2 0%, #FBF6ED 100%);
+            color: #2D1B4E;
+            border: 4px solid #4A3270;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 900;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 4px 12px rgba(45, 27, 78, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .category-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(45, 27, 78, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .category-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .category-btn:hover {
+            background: linear-gradient(135deg, #2D1B4E 0%, #4A3270 100%);
+            color: #F5F3F0;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(45, 27, 78, 0.25);
+        }
+        
+        .category-btn.active {
+            background: linear-gradient(135deg, #2D1B4E 0%, #4A3270 100%);
+            color: #F5F3F0;
+            box-shadow: 0 8px 24px rgba(45, 27, 78, 0.25);
+        }
+        
+        .menu-content {
+            margin-bottom: 2rem;
+        }
+        
+        .subcategory {
+            margin-bottom: 3rem;
+        }
+        
+        .subcategory-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #2D1B4E;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 5px solid;
+            border-image: linear-gradient(90deg, #2D1B4E, #4A3270) 1;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .subcategory-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #6B4E8C, #2D1B4E);
+            animation: expandWidth 0.6s ease-out forwards;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+        }
+        
+        .menu-card {
+            padding: 2rem;
+            background: linear-gradient(135deg, #FCF9F2 0%, #FBF6ED 100%);
+            border-radius: 16px;
+            border: 4px solid #6B4E8C;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 6px 16px rgba(45, 27, 78, 0.12);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(106, 78, 140, 0.2), transparent);
+            transition: left 0.5s;
+            z-index: 0;
+        }
+        
+        .menu-card:hover::before {
+            left: 100%;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-12px) rotateY(5deg);
+            box-shadow: 0 12px 32px rgba(45, 27, 78, 0.2);
+            border-color: #4A3270;
+            background: linear-gradient(135deg, #FBF6ED 0%, #FCF9F2 100%);
+        }
+        
+        .menu-card-name {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: #2D1B4E;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .menu-list {
+            list-style: none;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .menu-list li {
+            padding: 0.8rem 0;
+            color: #2D1B4E;
+            font-size: 0.98rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            padding-left: 1.5rem;
+        }
+        
+        .menu-list li:before {
+            content: "✦";
+            margin-right: 0.8rem;
+            color: #4A3270;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .menu-list li:hover {
+            padding-left: 2rem;
+            color: #4A3270;
+        }
+        
+        .cta-section {
+            padding: 4rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #2D1B4E 0%, #4A3270 50%, #6B4E8C 100%);
+            margin: 3rem 0 0 0;
+            color: #F5F3F0;
+            position: relative;
+            overflow: hidden;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(252, 249, 242, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .cta-section h3 {
+            margin: 0 0 1rem 0;
+            font-size: 2rem;
+            font-weight: 900;
+            position: relative;
+            z-index: 1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: slideInDown 0.8s ease-out;
+        }
+        
+        .cta-section p {
+            margin: 0 0 2rem 0;
+            font-size: 1.15rem;
+            position: relative;
+            z-index: 1;
+            animation: slideInUp 0.8s ease-out 0.2s both;
+        }
+        
+        .cta-btn {
+            padding: 1.2rem 3rem;
+            background: linear-gradient(135deg, #FBF6ED 0%, #FCF9F2 100%);
+            color: #2D1B4E;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.15rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .cta-btn:hover {
+            transform: scale(1.1) translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .cta-btn:active {
+            transform: scale(0.95);
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-40px) rotate(5deg); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(30px); }
+        }
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes expandWidth {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        .footer {
+            padding: 2.5rem 2rem;
+            background: linear-gradient(135deg, #2D1B4E 0%, #3D2645 100%);
+            color: #FCF9F2;
+            text-align: center;
+            border-top: 4px solid #6B4E8C;
+        }
+        
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .founder-info {
+            margin-bottom: 1.5rem;
+        }
+        
+        .founder-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: rgba(252, 249, 242, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .founder-name {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #FCF9F2;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+        
+        .contact-info {
+            background: rgba(252, 249, 242, 0.1);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid #6B4E8C;
+            margin-bottom: 1.5rem;
+        }
+        
+        .contact-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: rgba(252, 249, 242, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.7rem;
+        }
+        
+        .contact-number {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #FCF9F2;
+            letter-spacing: 2px;
+        }
+        
+        .footer-divider {
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #6B4E8C, transparent);
+            margin: 1.5rem auto;
+        }
+        
+        .footer-tagline {
+            font-size: 0.95rem;
+            color: rgba(252, 249, 242, 0.85);
+            font-style: italic;
+        }
+        
+        .contact-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .contact-modal-content {
+            background: linear-gradient(135deg, #2D1B4E 0%, #4A3270 100%);
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: slideInUp 0.4s ease-out;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: none;
+            color: #FCF9F2;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .close-modal:hover {
+            transform: scale(1.2);
+            color: #FBF6ED;
+        }
+        
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #FCF9F2;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .modal-founder {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 3px solid #6B4E8C;
+        }
+        
+        .modal-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: rgba(252, 249, 242, 0.85);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.8rem;
+        }
+        
+        .modal-value {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #FCF9F2;
+            letter-spacing: 1px;
+        }
+        
+        .modal-contact-number {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #FCF9F2;
+            letter-spacing: 2px;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .modal-contact-number:hover {
+            color: #FBF6ED;
+            transform: scale(1.05);
+        }
+        
+        .modal-message {
+            font-size: 1rem;
+            color: rgba(252, 249, 242, 0.9);
+            margin-top: 1.5rem;
+            font-style: italic;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        function RollingFolks() {
+            const [activeDay, setActiveDay] = React.useState(0);
+            const [selectedCategory, setSelectedCategory] = React.useState('coffee');
+            const [showContact, setShowContact] = React.useState(false);
+
+            const schedule = [
+                { day: 'Monday', location: 'Forum Mall Area', time: '4pm - 10pm' },
+                { day: 'Tuesday', location: 'Forum Mall Area', time: '4pm - 10pm' },
+                { day: 'Wednesday', location: 'Forum Mall Area', time: '4pm - 10pm' },
+                { day: 'Thursday', location: 'Forum Mall Area', time: '4pm - 10pm' },
+                { day: 'Friday', location: 'Forum Mall Area', time: '4pm - 10pm' },
+                { day: 'Saturday', location: 'Forum Mall Area', time: '4pm - 10pm' },
+                { day: 'Sunday', location: 'Forum Mall Area', time: '4pm - 10pm' }
+            ];
+
+            const menu = {
+                coffee: {
+                    title: 'Coffee Based',
+                    hot: {
+                        title: 'Hot',
+                        items: [
+                            'Americano',
+                            'Latte',
+                            'Cappuccino',
+                            'Mocha',
+                            'Macchiato',
+                            'Dirty-T'
+                        ]
+                    },
+                    cold: {
+                        title: 'Cold',
+                        items: [
+                            'Iced Americano',
+                            'Iced Latte',
+                            'Iced Mocha',
+                            'Vietnamese Iced Coffee',
+                            'Sunrise Espresso',
+                            'Honey Lemon Espresso'
+                        ]
+                    }
+                },
+                milkshakes: {
+                    title: 'Milkshakes',
+                    items: [
+                        'Lotus Milkshake',
+                        'Midnight Ganache',
+                        'Salted Peanut Butter & Banana',
+                        'Nutella Swirl',
+                        'Coconut & Lime'
+                    ]
+                },
+                mocktail: {
+                    title: 'Mocktails',
+                    items: [
+                        'Ruby Orchard',
+                        'Electric Blue Lemonade',
+                        'Peach & Elderflower Spritz',
+                        'Spiced Watermelon Cooler',
+                        'Elderflower Pomegranate Fizz',
+                        'Vanilla Lemonade Twist',
+                        'Ginger Peach Cooler',
+                        'Pomegranate Ginger Zing'
+                    ]
+                }
+            };
+
+            const renderMenuContent = () => {
+                if (selectedCategory === 'coffee') {
+                    return (
+                        <div className="menu-content">
+                            <div className="subcategory">
+                                <div className="subcategory-title">{menu.coffee.hot.title}</div>
+                                <div className="menu-grid">
+                                    {menu.coffee.hot.items.map((item, idx) => (
+                                        <div key={idx} className="menu-card">
+                                            <div className="menu-card-name">{item}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="subcategory">
+                                <div className="subcategory-title">{menu.coffee.cold.title}</div>
+                                <div className="menu-grid">
+                                    {menu.coffee.cold.items.map((item, idx) => (
+                                        <div key={idx} className="menu-card">
+                                            <div className="menu-card-name">{item}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                } else {
+                    const cat = menu[selectedCategory];
+                    return (
+                        <div className="menu-grid">
+                            {cat.items.map((item, idx) => (
+                                <div key={idx} className="menu-card">
+                                    <div className="menu-card-name">{item}</div>
+                                </div>
+                            ))}
+                        </div>
+                    );
+                }
+            };
+
+            return (
+                <>
+                    <div className="header">
+                        <div className="truck-emoji">🚚</div>
+                        <h1>THE ROLLING FOLKS</h1>
+                        <p>✨ Premium Beverages • Zero Wait • Maximum Flavor ✨</p>
+                    </div>
+
+                    <div className="schedule-section">
+                        <h2>📍 Where We Roll</h2>
+                        <div className="schedule-grid">
+                            {schedule.map((item, idx) => (
+                                <div
+                                    key={idx}
+                                    className={`schedule-card ${activeDay === idx ? 'active' : ''}`}
+                                    onClick={() => setActiveDay(idx)}
+                                >
+                                    <div className="day">{item.day}</div>
+                                    <div className="location">📍 {item.location}</div>
+                                    <div className="time">⏰ {item.time}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="menu-section">
+                        <h2>☕ Our Menu</h2>
+                        <div className="category-buttons">
+                            <button
+                                className={`category-btn ${selectedCategory === 'coffee' ? 'active' : ''}`}
+                                onClick={() => setSelectedCategory('coffee')}
+                            >
+                                ☕ Coffee Based
+                            </button>
+                            <button
+                                className={`category-btn ${selectedCategory === 'milkshakes' ? 'active' : ''}`}
+                                onClick={() => setSelectedCategory('milkshakes')}
+                            >
+                                🥤 Milkshakes
+                            </button>
+                            <button
+                                className={`category-btn ${selectedCategory === 'mocktail' ? 'active' : ''}`}
+                                onClick={() => setSelectedCategory('mocktail')}
+                            >
+                                🍹 Mocktails
+                            </button>
+                        </div>
+
+                        {renderMenuContent()}
+                    </div>
+
+                    <div className="cta-section">
+                        <h3>Ready to Roll With Us? 🎉</h3>
+                        <p>Follow us on social for daily specials & new menu items</p>
+                        <button className="cta-btn" onClick={() => setShowContact(true)}>📱 Contact</button>
+                    </div>
+
+                    {showContact && (
+                        <div className="contact-modal" onClick={() => setShowContact(false)}>
+                            <div className="contact-modal-content" onClick={(e) => e.stopPropagation()}>
+                                <button className="close-modal" onClick={() => setShowContact(false)}>✕</button>
+                                
+                                <div className="modal-title">Get In Touch</div>
+                                
+                                <div className="modal-founder">
+                                    <div className="modal-label">Founder & CEO</div>
+                                    <div className="modal-value">Manish Gupta</div>
+                                </div>
+                                
+                                <div>
+                                    <div className="modal-label">📞 Contact Number</div>
+                                    <a href="tel:9903181298" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                        <div className="modal-contact-number">9903181298</div>
+                                    </a>
+                                </div>
+                                
+                                <div className="modal-message">
+                                    ✨ Call us for orders, queries & special requests ✨
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </>
+            );
+        }
+
+        ReactDOM.render(<RollingFolks />, document.getElementById('root'));
+    </script>
+</body>
+</html>
